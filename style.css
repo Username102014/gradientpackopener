@@ -3,7 +3,6 @@ body {
   text-align: center;
   padding: 50px;
   background-color: #f0f0f0;
-  overflow-x: hidden;
 }
 
 button {
@@ -42,12 +41,7 @@ button {
   height: 180px;
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  transition: transform 0.6s ease, opacity 0.6s ease;
-  cursor: default;
   margin: 10px;
-  position: static;
-  transform: none;
-  opacity: 1;
 }
 
 .card img {
@@ -83,3 +77,4 @@ button {
 .hidden {
   display: none;
 }
+
