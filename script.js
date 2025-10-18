@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Eclipse", chance: 2.5, image: "eclipse.png" }
   ];
 
+  const bonusCards = [
+    { name: "Smooth Atlas", chance: 2.5, image: "smooth.png" },
+    { name: "Nautical Ember", chance: 5, image: "nauter.png" },
+    { name: "Ecliptic Frost", chance: 3.5, image: "ecliff.png" },
+    { name: "Lavender Wash", chance: 15, image: "lavender.png" },
+    { name: "Aurora", chance: 20, image: "aurora.png" }
+  ];
+
   const infinityEye = { name: "Infinity Eye", image: "infinity.png" };
   const eternalRay = { name: "Eternal Ray", image: "eternal.png" };
 
@@ -24,6 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let prototypeActiveUntil = null;
   let fulleclipseNext = false;
   let eternaleyePending = false;
+  let summervibesActiveUntil = null;
+  let summervibesUses = 0;
 
   const openBtn = document.getElementById("openBtn");
   const codeBtn = document.getElementById("codeBtn");
@@ -40,14 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
       return g.name === "Eclipse" ? { ...g, chance: g.chance * eclipseBoost } : g;
     });
 
-    const totalChance = adjustedGradients.reduce((sum, g) => sum + g.chance, 0);
+    let pool = [...adjustedGradients];
+
+    if (summervibesActiveUntil && Date.now() < summervibesActiveUntil) {
+      pool = pool.concat(bonusCards);
+    }
+
+    const totalChance = pool.reduce((sum, g) => sum + g.chance, 0);
     const rand = Math.random() * totalChance;
     let cumulative = 0;
-    for (let g of adjustedGradients) {
+    for (let g of pool) {
       cumulative += g.chance;
       if (rand < cumulative) return g;
     }
-    return adjustedGradients[0];
+    return pool[0];
   }
 
   function spinForInfinityEye() {
@@ -97,6 +113,11 @@ document.addEventListener("DOMContentLoaded", () => {
         eternaleyePending = false;
       }
 
+      if (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001) {
+        pack.push(eternalRay);
+        claimedEternalRay = true;
+      }
+
       revealedCards = pack;
       displayFullPack();
       checkEternalRayUnlock();
@@ -115,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function applyCode() {
     const code = codeInput.value.trim().toLowerCase();
-    if (usedCodes.has(code)) {
+    if (usedCodes.has(code) && code !== "summervibes") {
       alert("Code already used.");
       return;
     }
@@ -133,12 +154,21 @@ document.addEventListener("DOMContentLoaded", () => {
         eternaleyePending = true;
         alert("Eternal Eye activated: 0.1% chance to get Infinity Eye and Eternal Ray next pack.");
         break;
+      case "summervibes":
+        if (summervibesUses >= 3) {
+          alert("Summervibes code has already been used 3 times.");
+          return;
+        }
+        summervibesUses++;
+        summervibesActiveUntil = Date.now() + 10 * 60 * 1000;
+        alert("Summervibes activated: Bonus cards and 0.01% Eternal Ray chance for 10 minutes.");
+        break;
       default:
         alert("Invalid code.");
         return;
     }
 
-    usedCodes.add(code);
+    if (code !== "summervibes") usedCodes.add(code);
     codeInput.value = "";
   }
 
@@ -169,3 +199,4 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.appendChild(div);
   }
 });
+
