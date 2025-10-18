@@ -35,21 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
   codeBtn.onclick = applyCode;
 
   function rollGradient() {
-    const totalChance = gradients.reduce((sum, g) => sum + g.chance, 0);
-    let eclipseBoost = 1;
-    if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) {
-      eclipseBoost = 2;
-    }
-
+    const eclipseBoost = prototypeActiveUntil && Date.now() < prototypeActiveUntil ? 2 : 1;
     const adjustedGradients = gradients.map(g => {
-      if (g.name === "Eclipse") {
-        return { ...g, chance: g.chance * eclipseBoost };
-      }
-      return g;
+      return g.name === "Eclipse" ? { ...g, chance: g.chance * eclipseBoost } : g;
     });
 
-    const adjustedTotal = adjustedGradients.reduce((sum, g) => sum + g.chance, 0);
-    const rand = Math.random() * adjustedTotal;
+    const totalChance = adjustedGradients.reduce((sum, g) => sum + g.chance, 0);
+    const rand = Math.random() * totalChance;
     let cumulative = 0;
     for (let g of adjustedGradients) {
       cumulative += g.chance;
@@ -60,17 +52,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function spinForInfinityEye() {
     if (eternaleyeNext) return infinityEye;
-
     if (totalPacksOpened < 3) return null;
-    let baseChance = 0.01;
-    if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) {
-      baseChance *= 2;
-    }
-    if (totalPacksOpened % 5 === 0 && Math.random() < baseChance) {
-      hasInfinityEye = true;
-      return infinityEye;
-    }
-    return null;
+    let chance = 0.01;
+    if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) chance *= 2;
+    return totalPacksOpened % 5 === 0 && Math.random() < chance ? infinityEye : null;
   }
 
   function openPack() {
@@ -166,19 +151,3 @@ document.addEventListener("DOMContentLoaded", () => {
         claimBtn.textContent = "Claim Eternal Ray";
         claimBtn.style.marginTop = "20px";
         claimBtn.onclick = () => {
-          claimedEternalRay = true;
-          showEternalRay();
-          claimBtn.remove();
-        };
-        document.body.appendChild(claimBtn);
-      }
-    }
-  }
-
-  function showEternalRay() {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<img src="${eternalRay.image}" alt="${eternalRay.name}" />`;
-    wrapper.appendChild(div);
-  }
-});
