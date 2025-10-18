@@ -7,13 +7,23 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Gradient Pack Opener</h1>
+  <h1>🎴 Gradient Pack Opener</h1>
+
+  <!-- Pack opening button -->
   <button id="openBtn">Open Pack</button>
 
+  <!-- Code input bar -->
+  <div style="margin-top: 20px;">
+    <input type="text" id="codeInput" placeholder="Enter code" />
+    <button id="codeBtn">Apply Code</button>
+  </div>
+
+  <!-- Pack ripping overlay -->
   <div id="ripOverlay" class="rip-overlay hidden">
     <div class="rip-effect">🛍️ Ripping pack...</div>
   </div>
 
+  <!-- Card display area -->
   <div id="cardStage" class="stage"></div>
   <div id="packWrapper" class="wrapper hidden"></div>
 
