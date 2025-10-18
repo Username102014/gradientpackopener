@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const usedCodes = new Set();
   let prototypeActiveUntil = null;
   let fulleclipseNext = false;
-  let eternaleyeNext = false;
+  let eternaleyePending = false;
 
   const openBtn = document.getElementById("openBtn");
   const codeBtn = document.getElementById("codeBtn");
@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function spinForInfinityEye() {
-    if (eternaleyeNext) return infinityEye;
     if (totalPacksOpened < 3) return null;
     let chance = 0.01;
     if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) chance *= 2;
@@ -74,8 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fulleclipseNext) {
           card = gradients.find(g => g.name === "Eclipse");
           fulleclipseNext = false;
-        } else if (eternaleyeNext) {
-          card = infinityEye;
         } else {
           card = rollGradient();
         }
@@ -86,13 +83,18 @@ document.addEventListener("DOMContentLoaded", () => {
         pack.push(card);
       }
 
-      if (eternaleyeNext) {
+      const special = spinForInfinityEye();
+      if (special) {
+        pack.push(special);
+        hasInfinityEye = true;
+      }
+
+      if (eternaleyePending && Math.random() < 0.001) {
+        pack.push(infinityEye);
         pack.push(eternalRay);
-        eternaleyeNext = false;
         claimedEternalRay = true;
-      } else {
-        const special = spinForInfinityEye();
-        if (special) pack.push(special);
+        hasInfinityEye = true;
+        eternaleyePending = false;
       }
 
       revealedCards = pack;
@@ -128,8 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Next pack will contain a guaranteed Eclipse.");
         break;
       case "eternaleye":
-        eternaleyeNext = true;
-        alert("Next pack will contain Infinity Eye and Eternal Ray.");
+        eternaleyePending = true;
+        alert("Eternal Eye activated: 0.1% chance to get Infinity Eye and Eternal Ray next pack.");
         break;
       default:
         alert("Invalid code.");
@@ -151,3 +153,19 @@ document.addEventListener("DOMContentLoaded", () => {
         claimBtn.textContent = "Claim Eternal Ray";
         claimBtn.style.marginTop = "20px";
         claimBtn.onclick = () => {
+          claimedEternalRay = true;
+          showEternalRay();
+          claimBtn.remove();
+        };
+        document.body.appendChild(claimBtn);
+      }
+    }
+  }
+
+  function showEternalRay() {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<img src="${eternalRay.image}" alt="${eternalRay.name}" />`;
+    wrapper.appendChild(div);
+  }
+});
