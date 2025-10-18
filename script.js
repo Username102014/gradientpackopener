@@ -149,4 +149,3 @@ document.addEventListener("DOMContentLoaded", () => {
       case "summervibes":
         if (summervibesUses >= 3) {
           alert
-
