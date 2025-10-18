@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const usedCodes = new Set();
   let prototypeActiveUntil = null;
   let fulleclipseNext = false;
-  let eternaleyePending = false;
+  let eternaleyeNextPack = false;
   let summervibesActiveUntil = null;
   let summervibesUses = 0;
 
@@ -46,11 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function rollGradient() {
     const eclipseBoost = prototypeActiveUntil && Date.now() < prototypeActiveUntil ? 2 : 1;
-    const adjustedGradients = gradients.map(g => {
+    let pool = gradients.map(g => {
       return g.name === "Eclipse" ? { ...g, chance: g.chance * eclipseBoost } : g;
     });
-
-    let pool = [...adjustedGradients];
 
     if (summervibesActiveUntil && Date.now() < summervibesActiveUntil) {
       pool = pool.concat(bonusCards);
@@ -84,38 +82,38 @@ document.addEventListener("DOMContentLoaded", () => {
       overlay.classList.add("hidden");
       const pack = [];
 
-      for (let i = 0; i < 7; i++) {
-        let card;
-        if (fulleclipseNext) {
-          card = gradients.find(g => g.name === "Eclipse");
-          fulleclipseNext = false;
-        } else {
-          card = rollGradient();
-        }
-
-        if (card.name === "Eclipse") eclipseCount++;
-        if (card.name === "Infinity Eye") hasInfinityEye = true;
-
-        pack.push(card);
-      }
-
-      const special = spinForInfinityEye();
-      if (special) {
-        pack.push(special);
-        hasInfinityEye = true;
-      }
-
-      if (eternaleyePending && Math.random() < 0.001) {
+      if (eternaleyeNextPack) {
         pack.push(infinityEye);
         pack.push(eternalRay);
         claimedEternalRay = true;
         hasInfinityEye = true;
-        eternaleyePending = false;
-      }
+        eternaleyeNextPack = false;
+      } else {
+        for (let i = 0; i < 7; i++) {
+          let card;
+          if (fulleclipseNext) {
+            card = gradients.find(g => g.name === "Eclipse");
+            fulleclipseNext = false;
+          } else {
+            card = rollGradient();
+          }
 
-      if (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001) {
-        pack.push(eternalRay);
-        claimedEternalRay = true;
+          if (card.name === "Eclipse") eclipseCount++;
+          if (card.name === "Infinity Eye") hasInfinityEye = true;
+
+          pack.push(card);
+        }
+
+        const special = spinForInfinityEye();
+        if (special) {
+          pack.push(special);
+          hasInfinityEye = true;
+        }
+
+        if (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001) {
+          pack.push(eternalRay);
+          claimedEternalRay = true;
+        }
       }
 
       revealedCards = pack;
@@ -136,7 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function applyCode() {
     const code = codeInput.value.trim().toLowerCase();
-    if (usedCodes.has(code) && code !== "summervibes") {
+
+    if (code !== "summervibes" && usedCodes.has(code)) {
       alert("Code already used.");
       return;
     }
@@ -151,8 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Next pack will contain a guaranteed Eclipse.");
         break;
       case "eternaleye":
-        eternaleyePending = true;
-        alert("Eternal Eye activated: 0.1% chance to get Infinity Eye and Eternal Ray next pack.");
+        eternaleyeNextPack = true;
+        alert("Next pack will contain ONLY Infinity Eye and Eternal Ray.");
         break;
       case "summervibes":
         if (summervibesUses >= 3) {
@@ -199,3 +198,4 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.appendChild(div);
   }
 });
+
