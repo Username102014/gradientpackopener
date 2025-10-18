@@ -15,35 +15,58 @@ document.addEventListener("DOMContentLoaded", () => {
   const eternalRay = { name: "Eternal Ray", image: "eternal.png" };
 
   let totalPacksOpened = 0;
-  let currentPack = [];
   let revealedCards = [];
+  let claimedEternalRay = false;
   let hasInfinityEye = false;
   let eclipseCount = 0;
-  let claimedEternalRay = false;
+
+  const usedCodes = new Set();
+  let prototypeActiveUntil = null;
+  let fulleclipseNext = false;
+  let eternaleyeNext = false;
 
   const openBtn = document.getElementById("openBtn");
+  const codeBtn = document.getElementById("codeBtn");
+  const codeInput = document.getElementById("codeInput");
   const overlay = document.getElementById("ripOverlay");
-  const stage = document.getElementById("cardStage");
   const wrapper = document.getElementById("packWrapper");
 
-  openBtn.onclick = startPackAnimation;
+  openBtn.onclick = openPack;
+  codeBtn.onclick = applyCode;
 
   function rollGradient() {
     const totalChance = gradients.reduce((sum, g) => sum + g.chance, 0);
-    const rand = Math.random() * totalChance;
+    let eclipseBoost = 1;
+    if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) {
+      eclipseBoost = 2;
+    }
+
+    const adjustedGradients = gradients.map(g => {
+      if (g.name === "Eclipse") {
+        return { ...g, chance: g.chance * eclipseBoost };
+      }
+      return g;
+    });
+
+    const adjustedTotal = adjustedGradients.reduce((sum, g) => sum + g.chance, 0);
+    const rand = Math.random() * adjustedTotal;
     let cumulative = 0;
-    for (let g of gradients) {
+    for (let g of adjustedGradients) {
       cumulative += g.chance;
       if (rand < cumulative) return g;
     }
-    return gradients[0]; // fallback
+    return adjustedGradients[0];
   }
 
   function spinForInfinityEye() {
+    if (eternaleyeNext) return infinityEye;
+
     if (totalPacksOpened < 3) return null;
-    const baseChance = 0.01;
-    const boostedChance = claimedEternalRay ? baseChance * 2 : baseChance;
-    if (totalPacksOpened % 5 === 0 && Math.random() < boostedChance) {
+    let baseChance = 0.01;
+    if (prototypeActiveUntil && Date.now() < prototypeActiveUntil) {
+      baseChance *= 2;
+    }
+    if (totalPacksOpened % 5 === 0 && Math.random() < baseChance) {
       hasInfinityEye = true;
       return infinityEye;
     }
@@ -52,70 +75,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function openPack() {
     totalPacksOpened++;
-    const pack = [];
-    for (let i = 0; i < 7; i++) {
-      const card = rollGradient();
-      if (card.name === "Eclipse") {
-        eclipseCount++;
-      }
-      pack.push(card);
-    }
-    const special = spinForInfinityEye();
-    if (special) {
-      pack.push(special);
-    }
-    checkEternalRayUnlock();
-    return pack;
-  }
-
-  function startPackAnimation() {
-    stage.innerHTML = "";
+    overlay.classList.remove("hidden");
     wrapper.innerHTML = "";
     wrapper.classList.add("hidden");
-    overlay.classList.remove("hidden");
     revealedCards = [];
 
     setTimeout(() => {
       overlay.classList.add("hidden");
-      currentPack = openPack();
-      showCard(0);
-    }, 2000);
-  }
+      const pack = [];
 
-  function showCard(index) {
-    stage.innerHTML = "";
+      for (let i = 0; i < 7; i++) {
+        let card;
+        if (fulleclipseNext) {
+          card = gradients.find(g => g.name === "Eclipse");
+          fulleclipseNext = false;
+        } else if (eternaleyeNext) {
+          card = infinityEye;
+        } else {
+          card = rollGradient();
+        }
 
-    if (index >= currentPack.length) {
+        if (card.name === "Eclipse") eclipseCount++;
+        if (card.name === "Infinity Eye") hasInfinityEye = true;
+
+        pack.push(card);
+      }
+
+      if (eternaleyeNext) {
+        pack.push(eternalRay);
+        eternaleyeNext = false;
+        claimedEternalRay = true;
+      } else {
+        const special = spinForInfinityEye();
+        if (special) pack.push(special);
+      }
+
+      revealedCards = pack;
       displayFullPack();
-      return;
-    }
-
-    const nextCard = currentPack[index + 1];
-    if (nextCard) {
-      const backDiv = document.createElement("div");
-      backDiv.className = "card";
-      backDiv.style.zIndex = "5";
-      backDiv.style.opacity = "0.5";
-      backDiv.innerHTML = `<img src="${nextCard.image}" alt="${nextCard.name}" />`;
-      stage.appendChild(backDiv);
-    }
-
-    const card = currentPack[index];
-    const frontDiv = document.createElement("div");
-    frontDiv.className = "card";
-    frontDiv.innerHTML = `<img src="${card.image}" alt="${card.name}" />`;
-
-    frontDiv.onclick = () => {
-      if (frontDiv.classList.contains("animate")) return;
-      frontDiv.classList.add("animate");
-      revealedCards.push(card);
-
-      frontDiv.addEventListener("transitionend", () => {
-        showCard(index + 1);
-      }, { once: true });
-    };
-
-    stage.appendChild(frontDiv);
+      checkEternalRayUnlock();
+    }, 1500);
   }
 
   function displayFullPack() {
@@ -126,6 +124,35 @@ document.addEventListener("DOMContentLoaded", () => {
       div.innerHTML = `<img src="${card.image}" alt="${card.name}" />`;
       wrapper.appendChild(div);
     });
+  }
+
+  function applyCode() {
+    const code = codeInput.value.trim().toLowerCase();
+    if (usedCodes.has(code)) {
+      alert("Code already used.");
+      return;
+    }
+
+    switch (code) {
+      case "prototype":
+        prototypeActiveUntil = Date.now() + 15 * 60 * 1000;
+        alert("Prototype activated: Eclipse and Infinity Eye boosted for 15 minutes.");
+        break;
+      case "fulleclipse":
+        fulleclipseNext = true;
+        alert("Next pack will contain a guaranteed Eclipse.");
+        break;
+      case "eternaleye":
+        eternaleyeNext = true;
+        alert("Next pack will contain Infinity Eye and Eternal Ray.");
+        break;
+      default:
+        alert("Invalid code.");
+        return;
+    }
+
+    usedCodes.add(code);
+    codeInput.value = "";
   }
 
   function checkEternalRayUnlock() {
