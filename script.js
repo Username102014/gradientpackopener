@@ -105,3 +105,91 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Math.random() < 0.001 || (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001)) {
           pack.push(eternalRay);
           claimedEternalRay = true;
+        }
+      }
+
+      revealedCards = pack;
+      displayFullPack();
+      checkEternalRayUnlock();
+    }, 2000);
+  }
+
+  function displayFullPack() {
+    wrapper.classList.remove("hidden");
+    revealedCards.forEach(card => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `<img src="${card.image}" alt="${card.name}" />`;
+      wrapper.appendChild(div);
+    });
+  }
+
+  function applyCode() {
+    const code = codeInput.value.trim().toLowerCase();
+
+    if (code !== "summervibes" && usedCodes.has(code)) {
+      alert("Code already used.");
+      return;
+    }
+
+    switch (code) {
+      case "prototype":
+        prototypeActiveUntil = Date.now() + 15 * 60 * 1000;
+        alert("Prototype activated: Eclipse and Infinity Eye boosted for 15 minutes.");
+        usedCodes.add(code);
+        break;
+      case "fulleclipse":
+        fulleclipseNext = true;
+        alert("Next pack will contain a guaranteed Eclipse.");
+        usedCodes.add(code);
+        break;
+      case "eternaleye":
+        eternaleyeNextPack = true;
+        alert("Next pack will contain ONLY Infinity Eye and Eternal Ray.");
+        usedCodes.add(code);
+        break;
+      case "summervibes":
+        if (summervibesUses >= 3) {
+          alert("Summervibes code has already been used 3 times.");
+          return;
+        }
+        summervibesUses++;
+        summervibesActiveUntil = Date.now() + 10 * 60 * 1000;
+        alert("Summervibes activated: Bonus cards and 0.01% Eternal Ray chance for 10 minutes.");
+        break;
+      default:
+        alert("Invalid code.");
+        return;
+    }
+
+    codeInput.value = "";
+  }
+
+  function checkEternalRayUnlock() {
+    const claimBtnId = "claimEternalBtn";
+    let claimBtn = document.getElementById(claimBtnId);
+
+    if (hasInfinityEye && eclipseCount >= 2 && !claimedEternalRay) {
+      if (!claimBtn) {
+        claimBtn = document.createElement("button");
+        claimBtn.id = claimBtnId;
+        claimBtn.textContent = "Claim Eternal Ray";
+        claimBtn.style.marginTop = "20px";
+        claimBtn.onclick = () => {
+          claimedEternalRay = true;
+          showEternalRay();
+          claimBtn.remove();
+        };
+        document.body.appendChild(claimBtn);
+      }
+    }
+  }
+
+  function showEternalRay() {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<img src="${eternalRay.image}" alt="${eternalRay.name}" />`;
+    wrapper.appendChild(div);
+  }
+});
+
