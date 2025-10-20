@@ -3,53 +3,64 @@ body {
   text-align: center;
   padding: 50px;
   background-color: #f0f0f0;
+  overflow-x: hidden;
 }
 
 button {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 15px 30px;
+  font-size: 18px;
   cursor: pointer;
   margin: 10px;
 }
 
-#codeBar {
-  margin-top: 20px;
-}
-
-#codeInput {
-  padding: 10px;
-  font-size: 16px;
-  width: 200px;
-}
-
-#codeBtn {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-.wrapper {
+.stage {
+  position: relative;
+  height: 400px;
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-top: 30px;
-  flex-wrap: wrap;
+  margin-top: 40px;
 }
 
 .card {
-  width: 80px;
-  height: 120px;
-  border-radius: 8px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
-  margin: 5px;
+  width: 240px;
+  height: 360px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .card img {
   width: 100%;
   height: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
+}
+
+.card.animate {
+  transform: translateX(-150%) scale(0.9);
+  opacity: 0;
+}
+
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.wrapper .card {
+  width: 120px;
+  height: 180px;
+  margin: 10px;
+  position: static;
+  transform: none;
+  opacity: 1;
+  cursor: default;
 }
 
 .rip-overlay {
@@ -58,30 +69,24 @@ button {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.95);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
 }
 
-.rip-text {
+.rip-effect {
   font-size: 32px;
-  font-weight: bold;
-  color: #333;
-  animation: fadeInOut 2s ease-in-out;
+  animation: ripZoom 1.5s ease;
 }
 
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 0; transform: scale(1); }
+@keyframes ripZoom {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
 }
 
 .hidden {
   display: none;
 }
-
-
-
-
