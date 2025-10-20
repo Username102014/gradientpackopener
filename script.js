@@ -97,20 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
           pack.push(card);
         }
 
-        // ✅ Updated Infinity Eye logic: 1% chance per pack
-        const infinityEyeRoll = Math.random();
-        if (infinityEyeRoll < 0.01) {
+        if (Math.random() < 0.01) {
           pack.push(infinityEye);
           hasInfinityEye = true;
         }
 
-        // Eternal Ray logic
-        if (
-          Math.random() < 0.001 ||
-          (summervibesActiveUntil &&
-            Date.now() < summervibesActiveUntil &&
-            Math.random() < 0.0001)
-        ) {
+        if (Math.random() < 0.001 || (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001)) {
           pack.push(eternalRay);
           claimedEternalRay = true;
         }
@@ -157,49 +149,4 @@ document.addEventListener("DOMContentLoaded", () => {
         usedCodes.add(code);
         break;
       case "summervibes":
-        if (summervibesUses >= 3) {
-          alert("Summervibes code has already been used 3 times.");
-          return;
-        }
-        summervibesUses++;
-        summervibesActiveUntil = Date.now() + 10 * 60 * 1000;
-        alert("Summervibes activated: Bonus cards and 0.01% Eternal Ray chance for 10 minutes.");
-        break;
-      default:
-        alert("Invalid code.");
-        return;
-    }
-
-    codeInput.value = "";
-  }
-
-  function checkEternalRayUnlock() {
-    const claimBtnId = "claimEternalBtn";
-    let claimBtn = document.getElementById(claimBtnId);
-
-    if (hasInfinityEye && eclipseCount >= 2 && !claimedEternalRay) {
-      if (!claimBtn) {
-        claimBtn = document.createElement("button");
-        claimBtn.id = claimBtnId;
-        claimBtn.textContent = "Claim Eternal Ray";
-        claimBtn.style.marginTop = "20px";
-        claimBtn.onclick = () => {
-          claimedEternalRay = true;
-          showEternalRay();
-          claimBtn.remove();
-        };
-        document.body.appendChild(claimBtn);
-      }
-    }
-  }
-
-  function showEternalRay() {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<img src="${eternalRay.image}" alt="${eternalRay.name}" />`;
-    wrapper.appendChild(div);
-  }
-});
-
-
-
+        if (summervibesUses >= 3)
