@@ -12,4 +12,3 @@ document.addEventListener("DOMContentLoaded", () => {
     alert(`Apply Code clicked with input: ${code}`);
   };
 });
-
