@@ -105,15 +105,3 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Math.random() < 0.001 || (summervibesActiveUntil && Date.now() < summervibesActiveUntil && Math.random() < 0.0001)) {
           pack.push(eternalRay);
           claimedEternalRay = true;
-        }
-      }
-
-      revealedCards = pack;
-      displayFullPack();
-      checkEternalRayUnlock();
-    }, 1500);
-  }
-
-  function displayFullPack() {
-    wrapper.classList.remove("hidden");
-    revealedCards.forEach
