@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let eternaleyeNextPack = false;
   let summervibesActiveUntil = null;
   let summervibesUses = 0;
-  let dastarrynightActiveUntil = null;
 
   const openBtn = document.getElementById("openBtn");
   const codeBtn = document.getElementById("codeBtn");
@@ -46,10 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   codeBtn.onclick = applyCode;
 
   function rollGradient() {
-    const eclipseBoost =
-      (dastarrynightActiveUntil && Date.now() < dastarrynightActiveUntil) ? 3 :
-      (prototypeActiveUntil && Date.now() < prototypeActiveUntil) ? 2 : 1;
-
+    const eclipseBoost = prototypeActiveUntil && Date.now() < prototypeActiveUntil ? 2 : 1;
     let pool = gradients.map(g => {
       return g.name === "Eclipse" ? { ...g, chance: g.chance * eclipseBoost } : g;
     });
@@ -101,15 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
           pack.push(card);
         }
 
-        const infinityChance = (dastarrynightActiveUntil && Date.now() < dastarrynightActiveUntil) ? 0.02 : 0.01;
-        if (Math.random() < infinityChance) {
+        // ✅ Updated Infinity Eye logic: 1% chance per pack
+        const infinityEyeRoll = Math.random();
+        if (infinityEyeRoll < 0.01) {
           pack.push(infinityEye);
           hasInfinityEye = true;
         }
 
-        const eternalChance = (dastarrynightActiveUntil && Date.now() < dastarrynightActiveUntil) ? 0.01 : 0.001;
+        // Eternal Ray logic
         if (
-          Math.random() < eternalChance ||
+          Math.random() < 0.001 ||
           (summervibesActiveUntil &&
             Date.now() < summervibesActiveUntil &&
             Math.random() < 0.0001)
@@ -168,15 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
         summervibesActiveUntil = Date.now() + 10 * 60 * 1000;
         alert("Summervibes activated: Bonus cards and 0.01% Eternal Ray chance for 10 minutes.");
         break;
-      case "dastarrynight":
-        if (usedCodes.has("dastarrynight")) {
-          alert("Dastarrynight code already used.");
-          return;
-        }
-        usedCodes.add("dastarrynight");
-        dastarrynightActiveUntil = Date.now() + 5 * 60 * 1000;
-        alert("Dastarrynight activated: Eternal Ray 1%, Infinity Eye 2%, Eclipse 3% for 5 minutes.");
-        break;
       default:
         alert("Invalid code.");
         return;
@@ -212,5 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
     wrapper.appendChild(div);
   }
 });
+
 
 
