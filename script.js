@@ -1,39 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
   const gradients = [
-    { name: "Cornflower Breeze", chance: 28, image: "cornflower.png" },
-    { name: "Tropic Rise", chance: 15, image: "tropic.png" },
-    { name: "Cyanide Frost", chance: 14, image: "cyanide.png" },
-    { name: "Nautic Frost", chance: 13, image: "nautic.png" },
-    { name: "Icestone", chance: 8, image: "icestone.png" },
-    { name: "Dakratade", chance: 8, image: "dakratade.png" },
-    { name: "Ember Ashes", chance: 5, image: "ember.png" },
-    { name: "Gummy Worm", chance: 5, image: "gummy.png" },
-    { name: "Eclipse", chance: 2.5, image: "eclipse.png" }
+    { name: "Exo Shine", chance: 1.4, image: "exo.png" },
+    { name: "Frosty Fih", chance: 6.7, image: "fih.png" },
+    { name: "Eye of Rah", chance: 4.1, image: "rah.png" },
+    { name: "Isa", chance: 1.3, image: "isa.png" },
+    { name: "Demonic Wrath", chance: 4.5, image: "demon.png" },
+    { name: "Tropical Mist", chance: 4, image: "mist.png" },
+    { name: "Frost Tides", chance: 5, image: "tides.png" },
+    { name: "Popsicle", chance: 6, image: "pop.png" },
+    { name: "Lemon Lime", chance: 7, image: "lime.png" },
+    { name: "Velvet Sea", chance: 5, image: "velvet.png" },
+    { name: "Cotton Candy", chance: 7, image: "candy.png" },
+    { name: "Frosted Beam", chance: 15, image: "beam.png" },
+    { name: "Sunflower", chance: 20, image: "sunflower.png" }
   ];
 
-  const bonusCards = [
-    { name: "Smooth Atlas", chance: 2.5, image: "smooth.png" },
-    { name: "Nautical Ember", chance: 5, image: "nauter.png" },
-    { name: "Ecliptic Frost", chance: 3.5, image: "ecliff.png" },
-    { name: "Lavender Wash", chance: 15, image: "lavender.png" },
-    { name: "Aurora", chance: 20, image: "aurora.png" }
+  const fungalCards = [
+    { name: "Fungus Eye", chance: 0.01, image: "fungus.png" },
+    { name: "Inverted Spiral", chance: 0.01, image: "spiral.png" },
+    { name: "Waning Star", chance: 0.02, image: "waning.png" },
+    { name: "Clan Eye", chance: 0.001, image: "clan.png" }
   ];
-
-  const infinityEye = { name: "Infinity Eye", image: "infinity.png" };
-  const eternalRay = { name: "Eternal Ray", image: "eternal.png" };
 
   let totalPacksOpened = 0;
   let revealedCards = [];
-  let claimedEternalRay = false;
-  let hasInfinityEye = false;
-  let eclipseCount = 0;
+  let hasFungusEye = false;
+  let hasWaningStar = false;
+  let hasInvertedSpiral = false;
+  let hasClanEye = false;
 
   const usedCodes = new Set();
-  let prototypeActiveUntil = null;
-  let fulleclipseNext = false;
-  let eternaleyeNextPack = false;
-  let summervibesActiveUntil = null;
-  let summervibesUses = 0;
+  let fungalightActiveUntil = null;
 
   const openBtn = document.getElementById("openBtn");
   const codeBtn = document.getElementById("codeBtn");
@@ -45,13 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
   codeBtn.onclick = applyCode;
 
   function rollGradient() {
-    const eclipseBoost = prototypeActiveUntil && Date.now() < prototypeActiveUntil ? 2 : 1;
-    let pool = gradients.map(g => {
-      return g.name === "Eclipse" ? { ...g, chance: g.chance * eclipseBoost } : g;
-    });
+    let pool = [...gradients];
 
-    if (summervibesActiveUntil && Date.now() < summervibesActiveUntil) {
-      pool = pool.concat(bonusCards);
+    const fungalActive = fungalightActiveUntil && Date.now() < fungalightActiveUntil;
+    if (fungalActive) {
+      pool = pool.concat(fungalCards);
     }
 
     const totalChance = pool.reduce((sum, g) => sum + g.chance, 0);
@@ -75,50 +70,19 @@ document.addEventListener("DOMContentLoaded", () => {
       overlay.classList.add("hidden");
       const pack = [];
 
-      if (eternaleyeNextPack) {
-        pack.push(infinityEye);
-        pack.push(eternalRay);
-        claimedEternalRay = true;
-        hasInfinityEye = true;
-        eternaleyeNextPack = false;
-      } else {
-        for (let i = 0; i < 7; i++) {
-          let card;
-          if (fulleclipseNext) {
-            card = gradients.find(g => g.name === "Eclipse");
-            fulleclipseNext = false;
-          } else {
-            card = rollGradient();
-          }
+      for (let i = 0; i < 7; i++) {
+        const card = rollGradient();
 
-          if (card.name === "Eclipse") eclipseCount++;
-          if (card.name === "Infinity Eye") hasInfinityEye = true;
+        if (card.name === "Fungus Eye") hasFungusEye = true;
+        if (card.name === "Waning Star") hasWaningStar = true;
+        if (card.name === "Inverted Spiral") hasInvertedSpiral = true;
+        if (card.name === "Clan Eye") hasClanEye = true;
 
-          pack.push(card);
-        }
-
-        // ✅ Updated Infinity Eye logic: 1% chance per pack
-        const infinityEyeRoll = Math.random();
-        if (infinityEyeRoll < 0.01) {
-          pack.push(infinityEye);
-          hasInfinityEye = true;
-        }
-
-        // Eternal Ray logic
-        if (
-          Math.random() < 0.001 ||
-          (summervibesActiveUntil &&
-            Date.now() < summervibesActiveUntil &&
-            Math.random() < 0.0001)
-        ) {
-          pack.push(eternalRay);
-          claimedEternalRay = true;
-        }
+        pack.push(card);
       }
 
       revealedCards = pack;
       displayFullPack();
-      checkEternalRayUnlock();
     }, 2000);
   }
 
@@ -135,35 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyCode() {
     const code = codeInput.value.trim().toLowerCase();
 
-    if (code !== "summervibes" && usedCodes.has(code)) {
+    if (usedCodes.has(code)) {
       alert("Code already used.");
       return;
     }
 
     switch (code) {
-      case "prototype":
-        prototypeActiveUntil = Date.now() + 15 * 60 * 1000;
-        alert("Prototype activated: Eclipse and Infinity Eye boosted for 15 minutes.");
+      case "fungalight":
+        fungalightActiveUntil = Date.now() + 10 * 60 * 1000;
         usedCodes.add(code);
-        break;
-      case "fulleclipse":
-        fulleclipseNext = true;
-        alert("Next pack will contain a guaranteed Eclipse.");
-        usedCodes.add(code);
-        break;
-      case "eternaleye":
-        eternaleyeNextPack = true;
-        alert("Next pack will contain ONLY Infinity Eye and Eternal Ray.");
-        usedCodes.add(code);
-        break;
-      case "summervibes":
-        if (summervibesUses >= 3) {
-          alert("Summervibes code has already been used 3 times.");
-          return;
-        }
-        summervibesUses++;
-        summervibesActiveUntil = Date.now() + 10 * 60 * 1000;
-        alert("Summervibes activated: Bonus cards and 0.01% Eternal Ray chance for 10 minutes.");
+        alert("Fungalight activated: 2% Waning Star, 1% Fungus Eye & Inverted Spiral, 0.1% Clan Eye for 10 minutes.");
         break;
       default:
         alert("Invalid code.");
@@ -172,34 +117,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     codeInput.value = "";
   }
-
-  function checkEternalRayUnlock() {
-    const claimBtnId = "claimEternalBtn";
-    let claimBtn = document.getElementById(claimBtnId);
-
-    if (hasInfinityEye && eclipseCount >= 2 && !claimedEternalRay) {
-      if (!claimBtn) {
-        claimBtn = document.createElement("button");
-        claimBtn.id = claimBtnId;
-        claimBtn.textContent = "Claim Eternal Ray";
-        claimBtn.style.marginTop = "20px";
-        claimBtn.onclick = () => {
-          claimedEternalRay = true;
-          showEternalRay();
-          claimBtn.remove();
-        };
-        document.body.appendChild(claimBtn);
-      }
-    }
-  }
-
-  function showEternalRay() {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<img src="${eternalRay.image}" alt="${eternalRay.name}" />`;
-    wrapper.appendChild(div);
-  }
 });
-
-
-
