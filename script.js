@@ -16,17 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const fungalCards = [
-    { name: "Fungus Eye", chance: 0.01, image: "fungus.png" },
-    { name: "Inverted Spiral", chance: 0.01, image: "spiral.png" },
-    { name: "Waning Star", chance: 0.02, image: "waning.png" },
-    { name: "Clan Eye", chance: 0.001, image: "clan.png" }
+    { name: "Waning Star", chance: 2, image: "waning.png" },
+    { name: "Fungus Eye", chance: 1, image: "fungus.png" },
+    { name: "Inverted Spiral", chance: 1, image: "spiral.png" },
+    { name: "Clan Eye", chance: 0.1, image: "clan.png" }
   ];
 
   let totalPacksOpened = 0;
   let revealedCards = [];
-  let hasFungusEye = false;
-  let hasWaningStar = false;
-  let hasInvertedSpiral = false;
   let hasClanEye = false;
 
   const usedCodes = new Set();
@@ -44,8 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function rollGradient() {
     let pool = [...gradients];
 
-    const fungalActive = fungalightActiveUntil && Date.now() < fungalightActiveUntil;
-    if (fungalActive) {
+    if (fungalightActiveUntil && Date.now() < fungalightActiveUntil) {
       pool = pool.concat(fungalCards);
     }
 
@@ -72,12 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       for (let i = 0; i < 7; i++) {
         const card = rollGradient();
-
-        if (card.name === "Fungus Eye") hasFungusEye = true;
-        if (card.name === "Waning Star") hasWaningStar = true;
-        if (card.name === "Inverted Spiral") hasInvertedSpiral = true;
         if (card.name === "Clan Eye") hasClanEye = true;
-
         pack.push(card);
       }
 
